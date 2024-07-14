@@ -50,20 +50,14 @@
 
 	let posts = [
 		{ name: 'Dashboard', icon: ChartPieOutline, href: '/dashboard' },
-		{
-			name: 'Layouts',
-			icon: TableColumnSolid,
-			children: {
-				Stacked: '/layouts/stacked',
-				Sidebar: '/layouts/sidebar'
-			}
-		},
+
 		{
 			name: 'CRUD',
 			icon: RectangleListSolid,
 			children: {
 				Products: '/crud/products',
-				Users: '/crud/users'
+				Users: '/crud/users',
+				Students: '/crud/students'
 			}
 		},
 		{ name: 'Settings', icon: CogOutline, href: '/settings' },
@@ -92,7 +86,6 @@
 			name: 'Playground',
 			icon: WandMagicSparklesOutline,
 			children: {
-				Stacked: '/playground/stacked',
 				Sidebar: '/playground/sidebar'
 			}
 		}
@@ -100,25 +93,11 @@
 
 	let links = [
 		{
-			label: 'GitHub Repository',
-			href: 'https://github.com/themesberg/flowbite-svelte-admin-dashboard',
-			icon: GithubSolid
-		},
-		{
-			label: 'Flowbite Svelte',
-			href: 'https://flowbite-svelte.com/docs/pages/quickstart',
-			icon: ClipboardListSolid
-		},
-		{
 			label: 'Components',
 			href: 'https://flowbite-svelte.com/docs/components/accordion',
 			icon: LayersSolid
 		},
-		{
-			label: 'Support',
-			href: 'https://github.com/themesberg/flowbite-svelte-admin-dashboard/issues',
-			icon: LifeSaverSolid
-		}
+
 	];
 	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
 </script>

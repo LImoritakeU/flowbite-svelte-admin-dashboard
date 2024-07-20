@@ -4,7 +4,7 @@ import { transformMinguoDateToAd } from '$lib/common/date-transfer';
 import validator from 'validator';
 
 export const load = (async () => {
-	const { error, data, status } = await supabase.from('students').select('*').limit(10);
+	const { error, data, status } = await supabase.from('students').select('*').limit(100);
 
 	return {
 		students: data ?? []
@@ -13,19 +13,19 @@ export const load = (async () => {
 
 export const actions = {
 	deleteStudent: async ({ request }) => {
-        const formData = await request.formData();
-        const formObject = Object.fromEntries(formData.entries());
-        const id = formObject.id as string;
-        console.log(id);
-        const {  error } = await supabase.from('students').delete().match({ id });
+		const formData = await request.formData();
+		const formObject = Object.fromEntries(formData.entries());
+		const id = formObject.id as string;
 
-        if (error) {
+		const { error } = await supabase.from('students').delete().match({ id });
+
+		if (error) {
 			console.error(error);
 			return { success: false };
 		}
 
 		return { success: true };
-    },
+	},
 	addStudent: async ({ request }) => {
 		const formData = await request.formData();
 		const formObject = Object.fromEntries(formData.entries());
@@ -58,7 +58,27 @@ export const actions = {
 		}
 		return { success: true };
 	},
-	searchStudent: async (event) => {}
+	searchStudents: async ({ request }) => {
+		const formData = await request.formData();
+		const formObject = Object.fromEntries(formData.entries());
+		if (validator.isEmpty(formObject.search as string)) {
+			return { success: true };
+		}
+
+		const { data, error } = await supabase
+			.from('students')
+			.select('*')
+			.or(
+				`name.ilike.%${formObject.search}%, student_id.ilike.%${formObject.search}%, batch.ilike.%${formObject.search}%, mobile.ilike.%${formObject.search}%`
+			);
+
+		if (error) {
+			console.error(error);
+			return { success: false };
+		}
+
+		return { students: data, success: true };
+	}
 };
 
 const convertStudentFormObject = (formObject: Record<string, FormDataEntryValue>) => {

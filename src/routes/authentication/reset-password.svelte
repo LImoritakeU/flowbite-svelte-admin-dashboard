@@ -24,11 +24,11 @@
 		}
 		console.log(data);
 	};
-	
+
 	const path: string = '/authentication/reset-password';
-  const description: string = 'Reset password example - Flowbite Svelte Admin Dashboard';
+	const description: string = 'Reset password example - Flowbite Svelte Admin Dashboard';
 	const metaTitle: string = 'Flowbite Svelte Admin Dashboard - Reset password';
-  const subtitle: string = 'Reset password';
+	const subtitle: string = 'Reset password';
 </script>
 
 <MetaTag {path} {description} title={metaTitle} {subtitle} />

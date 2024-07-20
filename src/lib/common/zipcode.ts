@@ -370,6 +370,6 @@ export const ZIPCODES = {
 };
 
 export const zipcodeOptions = Object.keys(ZIPCODES).map((zipcode) => ({
-    value: zipcode,
-    name: `${zipcode} ${ZIPCODES[zipcode]}`
+	value: zipcode,
+	name: `${zipcode} ${ZIPCODES[zipcode]}`
 }));

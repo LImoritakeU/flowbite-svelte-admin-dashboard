@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { onMount } from 'svelte';
+	import { reportGenerator } from '$lib/services/mvdis/report-generator';
 	import {
 		Avatar,
 		Breadcrumb,
@@ -35,20 +37,16 @@
 		SearchOutline
 	} from 'flowbite-svelte-icons';
 
-	import Student from './Student.svelte';
-	import Delete from './Delete.svelte';
 	import MetaTag from '../../../utils/MetaTag.svelte';
+	import type { ActionData, PageData } from './$types.js';
 	import { studentColumnsMapping } from './types';
-	import type { ActionData } from './$types.js';
 
 	const { columns: c } = studentColumnsMapping;
 
-	export let data;
+	export let data: PageData;
 	export let form: ActionData;
 
-	$: students = form?.students || data.students;
-
-	const headers = Object.keys(data.students[0]);
+	const { students, batchInfo } = data;
 
 	let openUser: boolean = false; // modal control
 	let openDelete: boolean = false; // modal control
@@ -60,10 +58,32 @@
 	const description: string = 'CRUD students examaple - Flowbite Svelte Admin Dashboard';
 	const title: string = 'Flowbite Svelte Admin Dashboard - CRUD Students';
 	const subtitle: string = 'CRUD Students';
-	const pageName = '學員資料';
+	const pageName = '開訓名冊';
 
 	let searchInput = '';
 	let selected = [];
+
+	function generateDocxLink(blob: Blob, fileName: string) {
+		const url = window.URL.createObjectURL(blob);
+
+		const a = document.createElement('a');
+
+		a.setAttribute('hidden', '');
+		a.setAttribute('href', url);
+		a.setAttribute('download', fileName);
+
+		a.click();
+	}
+
+	function exportReport() {
+		reportGenerator.generateStartReport(students, batchInfo).then((blob) => {
+			generateDocxLink(blob, 'output.docx');
+		});
+	}
+
+	onMount(() => {
+		exportReport();
+	});
 </script>
 
 <MetaTag {path} {description} {title} {subtitle} />
@@ -72,7 +92,7 @@
 	<div class="p-4">
 		<Breadcrumb class="mb-5">
 			<BreadcrumbItem home>Home</BreadcrumbItem>
-			<BreadcrumbItem href="/crud/students">{pageName}</BreadcrumbItem>
+			<BreadcrumbItem href="/roster/start">{pageName}</BreadcrumbItem>
 			<BreadcrumbItem>列表</BreadcrumbItem>
 		</Breadcrumb>
 		<Heading tag="h1" class="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">
@@ -81,12 +101,7 @@
 
 		<Toolbar embedded class="w-full py-4 text-gray-500  dark:text-gray-400">
 			<form method="POST" class="flex" action="?/searchStudents" use:enhance>
-				<Search
-					size="md"
-					class="rounded-none py-2.5"
-					placeholder="學號、姓名、電話"
-					bind:value={searchInput}
-				/>
+				<Search size="md" class="rounded-none py-2.5" placeholder="期別" bind:value={searchInput} />
 				<Input type="hidden" name="search" value={searchInput} />
 				<Button class="rounded-s-none !p-2.5" type="submit">
 					<SearchOutline class="h-6 w-6" />
@@ -127,14 +142,7 @@
 			</div>
 
 			<div slot="end" class="flex items-center space-x-2">
-				<Button
-					size="sm"
-					class="gap-2 whitespace-nowrap px-3"
-					on:click={() => ((currentStudent = {}), (openUser = true))}
-				>
-					<PlusOutline size="sm" />新增學員
-				</Button>
-				<Button size="sm" color="alternative" class="gap-2 px-3">
+				<Button size="sm" class="gap-2 px-3">
 					<DownloadSolid size="md" class="-ml-1" />匯出
 				</Button>
 			</div>
@@ -143,72 +151,27 @@
 	<Table>
 		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
 			<!-- <TableHeadCell class="w-4 p-4"><Checkbox   /></TableHeadCell> -->
-			{#each ['學號', '姓名', '備註', '手機', 'EMAIL', '修改'] as title}
+			{#each ['編號', '姓名', '性別', '出生日期', '身分證字號', '住址', '手/自排', '電話', '發照資格', '發照日'] as title}
 				<TableHeadCell class="p-4 font-medium">{title}</TableHeadCell>
 			{/each}
 		</TableHead>
-		<TableBody>
-			{#each students as student, index}
-				<TableBodyRow class="text-base">
-					<!-- <TableBodyCell class="w-4 p-4"
-						><Checkbox
-							on:click={() => {
-								checkedStudents = [...checkedStudents, student];
-								console.log(checkedStudents)
-							}}
-						/></TableBodyCell
-					> -->
-					<TableBodyCell class="p-4">{student.student_id}</TableBodyCell>
-					<TableBodyCell class="mr-12 flex items-center space-x-6 whitespace-nowrap p-4">
-						<!-- <Avatar src={imagesPath(student.avatar, 'users')} /> -->
-						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-							<div class="text-base font-semibold text-gray-900 dark:text-white">
-								{student.name}
-							</div>
-							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
-								{student.national_id}
-							</div>
-						</div>
-					</TableBodyCell>
-					<TableBodyCell
-						class="max-w-sm overflow-hidden truncate p-4 text-base font-normal text-gray-500 dark:text-gray-400 xl:max-w-xs"
-					>
-						{student.notes}
-					</TableBodyCell>
-					<TableBodyCell class="p-4">{student.mobile}</TableBodyCell>
-					<TableBodyCell class="p-4">{student.email}</TableBodyCell>
-					<!-- <TableBodyCell class="p-4">{student.postal_code}</TableBodyCell>
-					<TableBodyCell class="p-4">{student.address}</TableBodyCell> -->
-					<!-- <TableBodyCell class="p-4 font-normal">
-						<div class="flex items-center gap-2">
-							<Indicator color={student.status === 'Active' ? 'green' : 'red'} />
-							{student.status}
-						</div>
-					</TableBodyCell> -->
-					<TableBodyCell class="space-x-2 p-4">
-						<Button
-							size="sm"
-							class="gap-2 px-3"
-							on:click={() => ((currentStudent = student), (openUser = true))}
-						>
-							<EditOutline size="sm" /> 修改
-						</Button>
-						<Button
-							color="red"
-							size="sm"
-							class="gap-2 px-3"
-							on:click={() => ((currentStudent = student), (openDelete = true))}
-						>
-							<TrashBinSolid size="sm" /> 刪除
-						</Button>
-					</TableBodyCell>
-				</TableBodyRow>
-			{/each}
-		</TableBody>
+		{#if students && students.length > 0}
+			<TableBody>
+				{#each students as student, index}
+					<TableBodyRow class="text-base">
+						<TableBodyCell class="p-4">{student.no}</TableBodyCell>
+						<TableBodyCell>{student.name}</TableBodyCell>
+						<TableBodyCell>{student.gender}</TableBodyCell>
+						<TableBodyCell>{student.birth}</TableBodyCell>
+						<TableBodyCell>{student.national_id}</TableBodyCell>
+						<TableBodyCell>{student.address}</TableBodyCell>
+						<TableBodyCell>{student.transmission_type}</TableBodyCell>
+						<TableBodyCell>{student.mobile}</TableBodyCell>
+						<TableBodyCell>{student.license_exam_type}</TableBodyCell>
+						<TableBodyCell>{student.learning_license_date}</TableBodyCell>
+					</TableBodyRow>
+				{/each}
+			</TableBody>
+		{/if}
 	</Table>
 </main>
-
-<!-- Modals -->
-
-<Student bind:open={openUser} data={currentStudent} />
-<Delete bind:open={openDelete} data={currentStudent} />

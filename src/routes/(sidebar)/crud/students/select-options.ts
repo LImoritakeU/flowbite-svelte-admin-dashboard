@@ -25,7 +25,7 @@ export const timeSlotOptions = [
 
 export const designatedOptions = [
 	{ value: false, name: '否' },
-	{ value: true, name: '是' },
+	{ value: true, name: '是' }
 ];
 
 export const instructorOptions = [
@@ -52,7 +52,7 @@ export const licenseExamTypeOptions = [
 
 export const transmissionTypeOptions = [
 	{ value: '自排', name: '自排' },
-	{ value: '手排', name: '手排' },
+	{ value: '手排', name: '手排' }
 ];
 
 export const registerInstructorOptions = [

@@ -49,7 +49,7 @@
 					<NavLi href="#top">Settings</NavLi>
 					<NavLi class="cursor-pointer">
 						Dropdown
-						<ChevronDownOutline  class="ms-0 inline" />
+						<ChevronDownOutline class="ms-0 inline" />
 					</NavLi>
 					<Dropdown class="z-20 w-44">
 						<DropdownItem href="#top">Item 1</DropdownItem>

@@ -22,7 +22,8 @@
 		WandMagicSparklesOutline,
 		ChartPieOutline,
 		RectangleListSolid,
-		TableColumnSolid
+		TableColumnSolid,
+		FileExportOutline
 	} from 'flowbite-svelte-icons';
 
 	export let drawerHidden: boolean = false;
@@ -57,7 +58,16 @@
 			children: {
 				Products: '/crud/products',
 				Users: '/crud/users',
-				Students: '/crud/students'
+				學員資料: '/crud/students'
+			}
+		},
+		{
+			name: '名冊',
+			icon: FileExportOutline,
+			children: {
+				開訓名冊: '/roster/start',
+				結訓名冊: '/roster/end',
+				考驗清冊: '/roster/exam'
 			}
 		},
 		{ name: 'Settings', icon: CogOutline, href: '/settings' },
@@ -96,8 +106,7 @@
 			label: 'Components',
 			href: 'https://flowbite-svelte.com/docs/components/accordion',
 			icon: LayersSolid
-		},
-
+		}
 	];
 	let dropdowns = Object.fromEntries(Object.keys(posts).map((x) => [x, false]));
 </script>

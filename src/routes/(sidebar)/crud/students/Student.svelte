@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, Label, Modal, Textarea, Select } from 'flowbite-svelte';
+	import { Button, Input, Label, Modal, Textarea, Select, Toggle } from 'flowbite-svelte';
 	import { studentColumnsMapping } from './types';
 	import {
 		genderOptions,
@@ -15,6 +15,8 @@
 
 	export let data: Record<string, string> = {};
 
+	$: isNew = Object.keys(data).length === 0;
+
 	let selectedGender = '';
 	let selectedTimeSlot = '';
 	let selectedDesignated = false;
@@ -23,6 +25,7 @@
 	let selectedLicenseExamType = '新考';
 	let selectedRegisterInstructor = '';
 	let selectedPostalCode = '402';
+	let lockBatch = true;
 
 	const { columns: c } = studentColumnsMapping;
 
@@ -34,12 +37,12 @@
 			if (el) el.value = data[key];
 		}
 		console.log(data);
-	};
+	}
 </script>
 
 <Modal
 	bind:open
-	title={Object.keys(data).length ? `修改學員 ${data.student_id + data.name}` : '新增學員'}
+	title={isNew ? '新增學員' : `修改學員 ${data.student_id + data.name}`}
 	size="lg"
 	class="m-4"
 >
@@ -48,19 +51,39 @@
 		<form
 			method="POST"
 			id="STUDENT_FORM"
-			action={Object.keys(data).length ? '?/updateStudent' : '?/addStudent'}
+			action={Object.keys(data).length ? '?/addStudent' : '?/updateStudent'}
 			use:init
 		>
 			<div class="grid grid-cols-6 gap-6">
 				<Input name="id" type="hidden" />
 				<Input name="student_id" type="hidden" />
-				<Label class="col-span-6 space-y-2 sm:col-span-2">
+				<Label class="col-span-6 space-y-2 sm:col-span-1">
 					<span>{c.batch.label}</span>
-					<Input name={c.batch.name} class="border outline-none" placeholder="999A" />
+					<Input
+						name={c.batch.name}
+						class="border outline-none"
+						placeholder="999A"
+						disabled={!isNew && lockBatch}
+					/>
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-1">
 					<span>{c.no.label}</span>
-					<Input name={c.no.name} class="border outline-none" placeholder="099" />
+					<Input
+						name={c.no.name}
+						class="border outline-none"
+						placeholder="099"
+						disabled={!isNew && lockBatch}
+					/>
+				</Label>
+				<Label class="col-span-6 space-y-2 sm:col-span-1">
+					{#if !isNew}
+						<span style="visibility: hidden;">" "</span>
+						<Button
+							class="border outline-none"
+							color="red"
+							on:click={() => (lockBatch = !lockBatch)}>修改期別</Button
+						>
+					{/if}
 				</Label>
 				<Label class="col-span-6 space-y-2 sm:col-span-3">
 					<span>{c.name.label}</span>
@@ -99,7 +122,11 @@
 				<Label class="col-span-6 space-y-2 sm:col-span-2">
 					<span>{c.postal_code.label}</span>
 					<!-- <Input name={c.postal_code.label} class="border outline-none" placeholder="402" /> -->
-					<Select name={c.postal_code.name} items={zipcodeOptions} bind:value={selectedPostalCode} />
+					<Select
+						name={c.postal_code.name}
+						items={zipcodeOptions}
+						bind:value={selectedPostalCode}
+					/>
 				</Label>
 
 				<Label class="col-span-6 space-y-2 sm:col-span-4">
@@ -205,6 +232,6 @@
 
 	<!-- Modal footer -->
 	<div slot="footer">
-		<Button type="submit" form="STUDENT_FORM">{Object.keys(data).length ? '修改' : '新增'}</Button>
+		<Button type="submit" form="STUDENT_FORM">{isNew ? '新增' : '修改'}</Button>
 	</div>
 </Modal>
